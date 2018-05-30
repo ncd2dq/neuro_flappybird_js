@@ -1,5 +1,5 @@
 class NN{
-    constructor(layers, neurons_per_layer, learning_rate, outputs=1, inputs=6){
+    constructor(layers, neurons_per_layer, learning_rate, outputs=1, inputs=5){
         this.layers = layers;
         this.network = this.create_network(layers, neurons_per_layer, outputs, inputs);
     }
@@ -19,12 +19,35 @@ class NN{
         return matrix_array;
     }
     
+    sigmoid(x){
+        let sig = 1 / (1 + Math.exp(-x));
+        return sig;
+    }
+    
+    softmax(x){
+        if(x > 0.5){
+            return 1;
+        } else {
+            return 0;
+        }
+    }
+    
+    activation(data_array){
+        for(let i = 0; i < data_array.rows; i++){
+            for(let j = 0; j < data_array.cols; j++){
+                data_array.matrix[i][j] = this.sigmoid(data_array.matrix[i][j]);
+            }
+        }
+        
+    }
+    
     feed_forward(inputs){
         //propogate the input forward through the network
         //inputs MUST be a matrix
         let previous_result = inputs;
         for(let i = 0; i < this.layers; i++){
             previous_result = previous_result.dot(this.network[i]);
+            this.activation(previous_result);
         }
         return previous_result;
     }
@@ -32,7 +55,8 @@ class NN{
     
     predict(inputs){
         //same thing as feed forward except it applies a soft_max to the feed_forward result
-        
+        let guess = this.feed_forward(inputs).matrix[0][0];
+        return this.softmax(guess);
     }
     
     mutate(rate){
