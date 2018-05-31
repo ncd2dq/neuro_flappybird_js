@@ -62,8 +62,9 @@ class Matrix{
     mutate(rate){
         for(let i = 0; i < this.rows; i++){
             for(let j = 0; j < this.cols; j++){
-                if(random() >= rate){
-                    this.matrix[i][j] = randomGaussian(0, 0.5)
+                if(random() <= rate){
+                    let offset = randomGaussian(0, 0.5);
+                    this.matrix[i][j] += offset;
                 }
             }
         }

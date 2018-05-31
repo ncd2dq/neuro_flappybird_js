@@ -16,9 +16,9 @@ class Pipe{
     
     display(){
         if(!this.closest){
-            fill(100, 50, 200);
+            fill(pipe_color);
         } else {
-            fill(0, 255, 0);
+            fill(nearest_pipe_color);
         }
         rect(this.x, this.y_min, this.width, -this.y_min);
         rect(this.x, this.y_max, this.width, Canvas_Height - this.y_max);

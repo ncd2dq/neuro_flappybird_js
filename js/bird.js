@@ -20,9 +20,9 @@ class Bird{
     
     display(){
         if(!this.crashed){
-            fill(100,25,100);
+            fill(alive_bird);
         } else {
-            fill(255, 0, 0);
+            fill(dead_bird);
         }
         ellipse(this.x, this.y, this.radius, this.radius);
     }
@@ -45,7 +45,7 @@ class Bird{
         this.distance++;
         //Use neural network to determine if it should jump or not
         let result = this.brain.predict(inputs);
-
+        
         if(result == 1){
             this.y -= this.jump_height;
             this.y_veloc -= this.jump_momentum;
@@ -79,12 +79,12 @@ class Bird{
     run(inputs, nearest_pipe){
         this.display();
         this.update();
-        this.calculate_features(inputs);
         if(!this.crashed){
+            this.calculate_features(inputs);
             this.jump(this.data);
+            this.hit_pipe(nearest_pipe);
         }
         this.loop_position();
-        this.hit_pipe(nearest_pipe);
     }
     
 }

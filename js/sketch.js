@@ -1,16 +1,24 @@
 const FPS = 60;
-const Canvas_Width = 800;
+const Canvas_Width = 600;
 const Canvas_Height = 600;
 
 const animation_speed = 5;
 
-const bird_population = 5;
-const bird_brain_layers = 2;
+const bird_population = 100;
+const bird_brain_layers = 1;
 const bird_brain_nodes_per_layer = 5;
 const learning_rate = 0.05;
-const mutation_rate = 0.05;
+const mutation_rate = 1;
 
-const column_rate = 50; //how many frames between each column
+let alive_bird; 
+let dead_bird; 
+
+let pipe_color;
+let nearest_pipe_color;
+
+let background_color;
+
+const column_rate = 100; //how many frames between each column
 const column_gap_pixels = 100;
 const column_gap_min = Canvas_Height / 4;
 const column_gap_max = Canvas_Height * 3 / 4;
@@ -23,15 +31,25 @@ let pipes = [];
 let closest_pipe;
 let features;
 
+let frame = 0;
+
+let time_to_evolve = false;
+
 function setup() {
     createCanvas(Canvas_Width, Canvas_Height);
+    
+    //Initialize colors here for speed in fill() + stroke()
+    alive_bird = color(100,25,100);
+    dead_bird = color(255, 0, 0);
+    pipe_color = color(100, 50, 200);
+    nearest_pipe_color = color(0, 255, 0);
+    background_color = color(125, 100, 125);
+    
     for(let i = 0; i < bird_population; i ++){
         population.push(new Bird(bird_brain_layers, bird_brain_nodes_per_layer))
     }
     
-    for(let i = 0; i < 50; i++){
-        pipes.push(new Pipe(i * 150));
-    }
+    initial_pipe_creation(pipes);
 }
 
 //Inputs:
@@ -44,9 +62,10 @@ function setup() {
 //all inputs need to be normalized so they don't overload the neurons
 
 function draw() {
-    background(125, 100, 125);
+    frame++;
+    background(background_color);
     //frameCount 
-    
+    pipe_generator(pipes, frame);
     
     //Handle Pipes
     for(let i = 0; i < pipes.length; i++){
@@ -64,6 +83,11 @@ function draw() {
     
     
     frameRate(FPS);
+    time_to_evolve = determine_if_evolution_time(population, time_to_evolve);
+    //RUN NEW POPULATION HERE
+    if(time_to_evolve){
+        population = new_population(population, time_to_evolve);
+    }
 }
 
 
@@ -73,12 +97,32 @@ function create_features(nearest_pipe){
     //this saves computing power
     //need to normalize these
     let feat = new Matrix(1, 5, type='zero');
-    feat.matrix[0][0] = ((nearest_pipe.x + nearest_pipe.width / 2) - population[0].x) / 150; //x_distance to nearest pipe
+    feat.matrix[0][0] = ((nearest_pipe.x + nearest_pipe.width / 2) - population[0].x) / 198; //x_distance to nearest pipe
     feat.matrix[0][1] = nearest_pipe.gap_center / (column_gap_max - column_gap_pixels / 2); //y_position of gap center
     feat.matrix[0][4] = 1; //bias
     //features 2,3 (y_position of bird / y_velocity of bird) must be determined inside bird class
     
     return feat;
+}
+
+function pipe_generator(pipe_list, frame){
+    if(frame % column_rate == 0){
+        pipe_list.push(new Pipe(Canvas_Width));
+    }
+    
+}
+
+function initial_pipe_creation(pipe_list){
+    //column_rate = frames per pipe
+    //pipe_speed = pixels per frame
+    //column_rate * pipe_speed = distance between each pipe
+    let offset = column_rate * pipe_speed;
+    let number_of_pipes = Canvas_Width / (offset) + 1; //sometimes it needs +1 sometimes it doesnt, depending on column spacing
+    for(let i = 0; i < number_of_pipes; i++){
+        if(i != 0){
+            pipe_list.push(new Pipe(i * offset));
+        }
+    }
 }
 
 
@@ -103,4 +147,14 @@ function find_closest_pipe(pipe_list){
             pipe_list[i].closest = false;
         }
     }
+}
+
+function determine_if_evolution_time(pop, flag){
+    flag = true;
+    for(let i = 0; i < pop.length; i++){
+        if(!pop[i].crashed){
+            flag = false;
+        }
+    }
+    return flag;
 }
