@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <!--Dependencies-->
-        <script src="libraries/p5.js"></script>
-        <script src="libraries/p5.sound.js"></script>
+        <!--Dependencies: runs a lot faster than normal p5.js but doesn't have friendly error system-->
+        <!--https://github.com/processing/p5.js/wiki/Optimizing-p5.js-Code-for-Performance-->
+        <script src="libraries/p5.min.js"></script>
+        <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
         
         <!--Game Logic-->
         <script src="js/matrix.js"></script>
@@ -12,11 +13,25 @@
         <script src="js/bird.js"></script>
         <script src="js/evolution.js"></script>
         <script src="js/sketch.js"></script>
+        
+        <style>
+            p{ margin-top: 0; margin-bottom: 0 }
+        </style>
+        
     </head>
+    
     <body>
         <form action="https://ncd2dq.github.io/lunchbreak">
             <input type="submit" value="Homepage">
         </form>
         <hr>
+        
+        <p id="generation">Generation: 0</p>
+        <p id="best_distance">Best Distance: 0</p>
+        <p id="avg_distance">Average Distance: 0</p>
+        <p id="current_distance">Current Distance: 0</p>
+        
+        <div id="plot_avg" style="width:600px;height:250px;"></div>
+        
     </body>
 </html>

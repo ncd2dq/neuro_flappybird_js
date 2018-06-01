@@ -1,6 +1,6 @@
 const FPS = 60;
 const Canvas_Width = 600;
-const Canvas_Height = 600;
+const Canvas_Height = 400;
 
 const animation_speed = 5;
 
@@ -8,7 +8,7 @@ const bird_population = 100;
 const bird_brain_layers = 1;
 const bird_brain_nodes_per_layer = 5;
 const learning_rate = 0.05;
-const mutation_rate = 1;
+const mutation_rate = 0.05;
 
 let alive_bird; 
 let dead_bird; 
@@ -35,6 +35,18 @@ let frame = 0;
 
 let time_to_evolve = false;
 
+//Display onscreen variables
+let first_pipe = true;
+let generation_num = 0;
+let best_distance_num = 0;
+let current_distance = 0;
+let average_distance = 0;
+
+let graph_x_axis = [];
+let average_record = []; //graph y axis
+let distance_record = [];
+let plot_data;
+
 function setup() {
     createCanvas(Canvas_Width, Canvas_Height);
     
@@ -50,6 +62,13 @@ function setup() {
     }
     
     initial_pipe_creation(pipes);
+    plot_data = document.getElementById("plot_avg");
+    Plotly.plot(plot_data, [{
+        x: 0,
+        y: 0
+    }], {xaxis: {title: "Generation"},
+         yaxis: {title: "Average Distance"},
+        title: "Performance"})
 }
 
 //Inputs:
@@ -87,6 +106,22 @@ function draw() {
     //RUN NEW POPULATION HERE
     if(time_to_evolve){
         population = new_population(population, time_to_evolve);
+        generation_num++;
+        if(best_distance_num < current_distance){
+            best_distance_num = current_distance;
+        }
+        distance_record.push(current_distance);
+        current_distance = 0;
+        calculate_average(distance_record);
+        average_record.push(average_distance);
+        
+        graph_x_axis.push(generation_num);
+        
+        graph_data();
+    }
+    
+    if(frameCount % 6 == 0){
+        display_game_data();
     }
 }
 
@@ -141,6 +176,10 @@ function remove_pipes(pipe_list){
 function find_closest_pipe(pipe_list){
     for(let i = 0; i < pipe_list.length; i++){
         if((pipe_list[i].x + pipe_list[i].width / 2) - population[0].x > 0){
+            if(!pipe_list[i].closest && !first_pipe){ //If this pipe was not previously the closest, then it must be a new pipe and birds have passed it
+                current_distance++;
+            }
+            first_pipe = false;
             pipe_list[i].closest = true;
             return pipe_list[i];
         } else {
@@ -157,4 +196,45 @@ function determine_if_evolution_time(pop, flag){
         }
     }
     return flag;
+}
+
+function calculate_average(record){
+    let sum = 0;
+    if(record.length >= 1){
+        for(let i = 0; i < distance_record.length; i++){
+            sum += distance_record[i];
+        }
+    }
+    average_distance = sum / record.length;
+    
+}
+
+//INTERACTION OF HTML AND JAVASCRIPT
+function display_game_data(){    
+    let generationElement = document.getElementById("generation");
+    generationElement.innerHTML = "Generation: " + generation_num;
+    
+    let bestDistanceElement = document.getElementById("best_distance");
+    bestDistanceElement.innerHTML = "Best Distance: " + best_distance_num;
+    
+    let currentDistanceElement = document.getElementById("current_distance");
+    currentDistanceElement.innerHTML = "Current Distance: " + current_distance;
+    
+    let avgDistanceElement = document.getElementById("avg_distance");
+    avgDistanceElement.innerHTML = "Average Distance: " + average_distance;
+}
+
+function graph_data(){    //Everytime this function is called it graphs a new line on the already exisiting graph
+    if(generation_num >= 1){
+        Plotly.deleteTraces(plot_data, 0);
+    }
+    //plot(divtagID, data, styling)
+    Plotly.plot(plot_data, [{
+        x: graph_x_axis,
+        y: average_record
+    }], {xaxis: {title: "Generation"},
+         yaxis: {title: "Average Distance"},
+        title: "Performance"
+        /*,margin: { t: 0}*/})
+    
 }

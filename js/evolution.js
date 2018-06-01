@@ -45,7 +45,6 @@ function calculate_fitness(current_population){
     //normalize fitness based on max fitness
     for(let i = 0; i < current_population.length; i++){
         current_population[i].fitness /= max_fitness;
-        console.log(current_population[i].fitness);
     }
 }
 
@@ -77,18 +76,18 @@ function cross_over(current_population){
             }
         }
 
-        //Synapse0 = parent1's, synapse1 = parent2's, synapse2 = parent1's, ect...
-        let every_other = false;
+        //For every weight it has a random chance of being parent1's weight or parent2's weight
         for(let synapse_number = 0; synapse_number < babies[z].brain.network.length; synapse_number ++){
-            if(every_other){
-                babies[z].brain.network[synapse_number] = parent2.brain.network[synapse_number];
-                every_other = false;
-            } else {
-                babies[z].brain.network[synapse_number] = parent1.brain.network[synapse_number];
-                every_other = true;
+            for(let row = 0; row < babies[z].brain.network[synapse_number].matrix.rows; row++){
+                for(let col = 0; col < babies[z].brain.network[synapse_number].matrix.cols; col++){
+                    if(random() >= 0.5){
+                        babies[z].brain.network[synapse_number].matrix[row][col] = parent1.brain.network[synapse_number].matrix[row][col];
+                    } else {
+                        babies[z].brain.network[synapse_number].matrix[row][col] = parent2.brain.network[synapse_number].matrix[row][col];
+                    }
+                }
             }
         }
-        
     }
     
     return babies;
