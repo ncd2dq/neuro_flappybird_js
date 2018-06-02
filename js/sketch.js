@@ -4,7 +4,7 @@ const Canvas_Height = 400;
 
 const animation_speed = 5;
 
-const bird_population = 100;
+const bird_population = 150;
 const bird_brain_layers = 1;
 const bird_brain_nodes_per_layer = 5;
 const learning_rate = 0.05;
@@ -12,7 +12,7 @@ const mutation_rate = 0.05;
 
 let alive_bird; 
 let dead_bird; 
-
+let best_child_color;
 let pipe_color;
 let nearest_pipe_color;
 
@@ -56,6 +56,7 @@ function setup() {
     pipe_color = color(100, 50, 200);
     nearest_pipe_color = color(0, 255, 0);
     background_color = color(125, 100, 125);
+    best_child_color = color(255, 215, 0);
     
     for(let i = 0; i < bird_population; i ++){
         population.push(new Bird(bird_brain_layers, bird_brain_nodes_per_layer))

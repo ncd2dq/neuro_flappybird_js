@@ -16,10 +16,13 @@ class Bird{
         this.gravity = 0.1;
         this.jump_height = 5;
         this.jump_momentum = 3;
+        this.best_child = false;
     }
     
     display(){
-        if(!this.crashed){
+        if(this.best_child){
+            fill(best_child_color);
+        } else if(!this.crashed) {
             fill(alive_bird);
         } else {
             fill(dead_bird);
