@@ -48,7 +48,8 @@ let distance_record = [];
 let plot_data;
 
 function setup() {
-    createCanvas(Canvas_Width, Canvas_Height);
+    let canvas = createCanvas(Canvas_Width, Canvas_Height);
+    canvas.parent('sketch-holder');
     
     //Initialize colors here for speed in fill() + stroke()
     alive_bird = color(100,25,100);
